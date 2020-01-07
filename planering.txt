@@ -1,0 +1,27 @@
+idéer
+
+spel
+ wow-items
+ hots
+
+
+main features
+sökfunktion / filter
+
+
+tabeller
+-genrer
+-titlar
+-plattformar
+
+
+imdb-data tabeller (title.basic + rating)
+-titlar
+ id	titleType	primaryTitle	originalTitle	isAdult	startYear	endYear	runtimeMinutes	genres rating nrvotes
+
+-personer (name.basics)
+ id	primaryName	birthYear	deathYear	primaryProfession(foreign key)	knownForTitles (array med foreign keys)
+
+-professions
+ id professionName
+
