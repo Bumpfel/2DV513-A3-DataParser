@@ -21,12 +21,7 @@ public class Title implements IMDBData {
     averageRating = map.get("averageRating");
     numVotes = map.get("numVotes");
  }
-
-//  public void setNumVotes() {
-
-//  }
-
-  public String getInsertCols() {
+  public static String getInsertCols() {
     return "id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres, averageRating, numVotes";
   }
   public String[] getInsertValues() {

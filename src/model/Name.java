@@ -24,11 +24,12 @@ public class Name implements IMDBData {
     primaryProfession.add(professionId);
   }
 
-  public String getInsertCols() {
+  public static String getInsertCols() {
     return "id, primaryName, birthYear, deathYear, primaryProfession, knownForTitles";
   } 
   public String[] getInsertValues() {
-    return new String[] { id, primaryName, birthYear, deathYear, primaryProfession.toString(), knownForTitles };
+    return new String[] { id, primaryName, birthYear, deathYear, tempPrimaryProfession, knownForTitles };
+    // return new String[] { id, primaryName, birthYear, deathYear, primaryProfession.toString(), knownForTitles };
   }
 
   @Override

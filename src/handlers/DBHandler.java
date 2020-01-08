@@ -1,18 +1,32 @@
 package handlers;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.*;
+import java.util.Arrays;
+import java.util.Scanner;
 
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
 import model.IMDBData;
+import model.Name;
+import model.Title;
 
 public class DBHandler {
-  private Connection conn;
+  private Connection mConn;
+  private boolean mDebug = false;
+  
+  public DBHandler(boolean debug) {
+    mDebug = debug;
+  }
 
   public void connect(String database) {
     try {
       Class.forName("com.mysql.jdbc.Driver");
-      conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + database + "?rewriteBatchedStatements=true", "root", ""); // running on localhost only, so root user is fine
+      mConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + database + "?rewriteBatchedStatements=true", "root", ""); // running on localhost only, so root user is fine
     } catch (ClassNotFoundException | SQLException e) {
       e.printStackTrace();
       System.exit(-1);
@@ -21,34 +35,39 @@ public class DBHandler {
 
   public boolean exec(String query) {
     try {
-      Statement stmt = conn.createStatement();
+      Statement stmt = mConn.createStatement();
       return stmt.execute(query);
     } catch (SQLException e) {
       e.printStackTrace();
       return false;
     }
   }
-  
-  public void batchInsertion(String table, Iterable<IMDBData> data) {
+
+  public void batchInsertion(String table, Iterable<IMDBData> data, int maxBatchSize) {
     if(!data.iterator().hasNext()) {
       return;
     }
 
+    Class<?> dataClass = data.iterator().next().getClass();
+    String colsString = null;
+    if(dataClass == Title.class) {
+      colsString = Title.getInsertCols();
+    } else if(dataClass == Name.class) {
+      colsString = Name.getInsertCols();
+    }
+    
+    // builds a comma-separated string "?, ?, ?, ..." with a parameter(?) for each column     
+    StringBuilder parameterBuilder = new StringBuilder();
+    for(int i = 0; i < colsString.split(",").length; i++) {
+      parameterBuilder.append("?, ");
+    }
+    String parameterString = parameterBuilder.substring(0, parameterBuilder.length() - 2);
+    
     try {
-      // builds a comma-separated string "?, ?, ?, ..." with a parameter(?) for each column
-      // https://stackoverflow.com/questions/1812891/java-escape-string-to-prevent-sql-injection
-      
-      String colsString = data.iterator().next().getInsertCols();
-      
-      StringBuilder parameterBuilder = new StringBuilder();
-      for(int i = 0; i < colsString.split(",").length; i++) {
-        parameterBuilder.append("?, ");
-      }
-      String parameterString = parameterBuilder.substring(0, parameterBuilder.length() - 2);
-      
-      PreparedStatement stmt = conn.prepareStatement("INSERT IGNORE INTO " + table + "(" + colsString + ") VALUES (" + parameterString + ")");
-      // long timestamp = System.currentTimeMillis();
+      PreparedStatement stmt = mConn.prepareStatement("INSERT IGNORE INTO " + table + "(" + colsString + ") VALUES (" + parameterString + ")");
 
+      int batchSize = 0;
+      int batchNr = 1;
       for(IMDBData dataObject : data) {
         String[] insertValues = dataObject.getInsertValues();
         for(int i = 1; i <= insertValues.length; i++) {
@@ -56,15 +75,18 @@ public class DBHandler {
           stmt.setString(i, insertValues[i - 1]);
         }
         stmt.addBatch();
+        batchSize ++;
+        if(batchSize == maxBatchSize) {
+          stmt.executeBatch();
+          System.out.print(mDebug ? " batch #" + batchNr++ + " - inserted batch of " + batchSize + "\n" : "");
+          batchSize = 0;
+        }
       }
-      // execute batch and count insertions
+      // execute remaining batch
       stmt.executeBatch();
-      // attemptedInsertions += stmt.executeBatch().length;
+      System.out.print(mDebug ? " batch #" + batchNr++ + " - inserted batch of " + batchSize + "\n" : "");
 
-      // done
-      // totalTimeTaken += System.currentTimeMillis() - timestamp;
     } catch(MySQLIntegrityConstraintViolationException | BatchUpdateException e) {
-      // duplicate entry
       System.err.println("Error inserting into " + table + ". " + e.getMessage());
     } catch (SQLException e) {
       e.printStackTrace();

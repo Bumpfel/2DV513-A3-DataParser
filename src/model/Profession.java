@@ -12,7 +12,7 @@ public class Profession implements IMDBData {
     professionName = _professionName;
   }
 
-  public String getInsertCols() {
+  public static String getInsertCols() {
     return "id, professionName";
   } 
   public String[] getInsertValues() {
