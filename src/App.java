@@ -1,42 +1,41 @@
-import java.text.DecimalFormat;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 
+import handlers.DBHandler;
 import handlers.DataParser;
 import model.IMDBData;
-import model.Title;
 
 class App {
-  public static void main(String[] args)  throws Exception {
-    Set<IMDBData> titles = DataParser.parseTitles();
-    // System.out.println("parsed");
-    // Set<IMDBData> persons = DataParser.parseNames();
-    // Set<IMDBData> professions = DataParser.parseProfessions();
+  public static void main(String[] args) {
+    DataParser parser = new DataParser();
+    DBHandler db = new DBHandler();
+    db.connect("2dv513a3");    
 
+    // clear old data
+    db.exec("DELETE FROM titles");
+    db.exec("DELETE FROM names");
+    db.exec("DELETE FROM professions");
+    System.out.println("old data cleared from db");
 
-    int largestFound = 0;
-    String largestTitle =  null;
-    int adultMovies = 0;
-    for(IMDBData data : titles) {
-      Title title = (Title) data;
-      adultMovies += Integer.parseInt(title.isAdult);
-      if(title.originalTitle.length() > largestFound) {
-        // largestFound = title.originalTitle.length();
-        // largestTitle = title.originalTitle;
-      }
-    }
-    // System.out.println("largestFound: " + largestFound);
+    System.out.println("Starting data parsing...");
 
+    // Titles
+    Collection<IMDBData> titles = parser.parseTitles();
+    System.out.println(" titles parsed");
+    db.batchInsertion("titles", titles);
+    System.out.println(" titles inserted into db");
 
-    DecimalFormat df = new DecimalFormat("#.##");
+    Collection<IMDBData> names = new ArrayList<IMDBData>();
+    Collection<IMDBData> professions = new ArrayList<IMDBData>();
+    parser.parseNamesAndProfessions(names, professions);
+    System.out.println(" names and professions parsed");
+    db.batchInsertion("names", names);
+    System.out.println(" names inserted into db");
 
-    System.out.println("Total nr of titles: " + titles.size());
-    System.out.println("Nr of adult movies: " + adultMovies + " (" + df.format((double) adultMovies /  titles.size() * 100) + "%)");
+    // db.batchInsertion("professions", professions);
+    // System.out.println("-professions inserted into db");
 
-    // for(IMDBData title : titles) {
-    //   System.out.println(title);
-    // }
-    // System.out.println(titles.iterator().next().getClass());
-   
+    System.out.println("All data inserted into db");
   }
 
 }

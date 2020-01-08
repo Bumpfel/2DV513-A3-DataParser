@@ -19,6 +19,16 @@ public class DBHandler {
     }
   }
 
+  public boolean exec(String query) {
+    try {
+      Statement stmt = conn.createStatement();
+      return stmt.execute(query);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+  
   public void batchInsertion(String table, Iterable<IMDBData> data) {
     if(!data.iterator().hasNext()) {
       return;

@@ -3,7 +3,10 @@ package model;
 import java.util.Map;
 
 public class Title implements IMDBData {
-  public String id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres, rating, nrvotes;
+  private String id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres;
+  public String averageRating, numVotes;
+
+  public String getId() { return id; }
 
   public Title(Map<String, String> map) {
     id = map.get("tconst");
@@ -15,51 +18,24 @@ public class Title implements IMDBData {
     endYear = map.get("endYear");
     runtimeMinutes = map.get("runtimeMinutes");
     genres = map.get("genres");
-  }
+    averageRating = map.get("averageRating");
+    numVotes = map.get("numVotes");
+ }
 
-  // not the best solution but should work
-  // public Title(String[] data) throws Exception {
-  //   if (data.length != Title.class.getDeclaredFields().length - 2) {
-  //     throw new Exception("Input data does not match class attributes");
-  //   } else {
-  //     this.id = data[0];
-  //     this.titleType = data[1];
-  //     this.primaryTitle = data[2];
-  //     this.originalTitle = data[3];
-  //     this.isAdult = data[4];
-  //     this.startYear = data[5];
-  //     this.endYear = data[6];
-  //     this.runtimeMinutes = data[7];
-  //     this.genres = data[8];
-  //   }
-  // }
+//  public void setNumVotes() {
 
-
-  // not used
-  public Title(String id, String titleType, String  primaryTitle, String originalTitle, String isAdult, String startYear, String endYear, String runtimeMinutes, String genres) { //, String rating, String nrvotes) {
-    this.id = id;
-    this.titleType = titleType;
-    this.primaryTitle = primaryTitle;
-    this.originalTitle = originalTitle;
-    this.isAdult = isAdult;
-    this.startYear = startYear;
-    this.endYear = endYear;
-    this.runtimeMinutes = runtimeMinutes;
-    this.genres = genres;
-    // this.rating = rating;
-    // this.nrvotes = nrvotes;
-  }
+//  }
 
   public String getInsertCols() {
-    return "id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres";
-  } 
-
+    return "id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres, averageRating, numVotes";
+  }
   public String[] getInsertValues() {
-    return new String[] { id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres, rating, nrvotes };
+    return new String[] { id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres, averageRating, numVotes };
   }
 
   @Override
   public String toString() {
-    return primaryTitle;
+    // return primaryTitle;
+    return id + " " + primaryTitle + " " + averageRating + " (" + numVotes + " votes)";
   }
 }
