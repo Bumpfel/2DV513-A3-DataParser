@@ -2,18 +2,14 @@ package handlers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 import model.IMDBData;
 import model.Title;
 import model.Name;
-import model.Profession;
 
 public class DataParser {
     private String mDataPath = "data/";
@@ -122,6 +118,7 @@ public class DataParser {
 
 
 
+    // batch parsing. not finished
     
     private Scanner mScanner;
     private int mBatchSize;

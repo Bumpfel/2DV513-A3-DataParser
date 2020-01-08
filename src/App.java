@@ -1,7 +1,4 @@
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Scanner;
 
 import handlers.DBHandler;
 import handlers.DataParser;
@@ -13,7 +10,7 @@ class App {
 
     int batchSize = 100000;
     DBHandler db = new DBHandler(verboseMode);
-    db.connect("imdb_data");
+    db.connect("2dv513a3");
       
     // clear old data
     db.exec("DELETE FROM titles");
