@@ -19,4 +19,5 @@ OR
 3. Name the files "titles.tsv", "ratings.tsv", and "names.tsv"
 
 # Run the app
-1. Run App.java
+1. Change to verbose mode true in App.java if you want more detailed information during the parsing
+2. Run App.java
