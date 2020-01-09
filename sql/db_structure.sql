@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `episodes` (
   `parentId` varchar(10) NOT NULL,
   `seasonNumber` int(2) NOT NULL,
   `episodeNumber` int(3) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
