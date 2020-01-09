@@ -5,11 +5,13 @@ class App {
   public static void main(String[] args) {
     boolean verboseMode = true;
     int batchSize = 50000;
-        
+    String database = "2dv513a3";
+    String dataFolder = "data";
+
     long timestamp = System.currentTimeMillis();
     try {
       // Titles
-      BatchWorker worker = new BatchWorker(verboseMode, batchSize, "2dv513a3", "data");
+      BatchWorker worker = new BatchWorker(verboseMode, batchSize, database, dataFolder);
       
       System.out.println("Starting data parsing...");
       worker.start(false);
