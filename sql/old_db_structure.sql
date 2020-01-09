@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 09, 2020 at 07:20 PM
+-- Generation Time: Jan 08, 2020 at 04:48 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -19,22 +19,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `2dv513a3`
+-- Database: `2dv513a3_test`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `episodes`
---
-
-DROP TABLE IF EXISTS `episodes`;
-CREATE TABLE IF NOT EXISTS `episodes` (
-  `id` varchar(10) NOT NULL,
-  `parentId` varchar(10) NOT NULL,
-  `seasonNumber` int(2) NOT NULL,
-  `episodeNumber` int(3) NOT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
