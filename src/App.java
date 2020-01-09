@@ -5,7 +5,7 @@ class BatchApp {
   public static void main(String[] args) {
     boolean verboseMode = true;
 
-    int batchSize = 10000;
+    int batchSize = 50000;
         
     long timestamp = System.currentTimeMillis();
     try {

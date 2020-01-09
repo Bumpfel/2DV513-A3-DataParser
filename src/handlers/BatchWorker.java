@@ -24,9 +24,9 @@ public class BatchWorker {
     mBatchSize = batchSize;
     mDB = new DBHandler(true);
     mDB.connect(mDatabase);
-    mDB.exec("TRUNCATE titles");
-    mDB.exec("TRUNCATE names");
-    System.out.print(mVerboseMode ? "old data cleared from db\n\n" : "");
+    // mDB.exec("TRUNCATE titles");
+    // mDB.exec("TRUNCATE names");
+    // System.out.print(mVerboseMode ? "old data cleared from db\n\n" : "");
   }
 
   public void start() {
@@ -35,9 +35,9 @@ public class BatchWorker {
   }
 
   private void parseTitles() {
-    if(mVerboseMode) System.out.println("parsing titles...");
-    int numParsedTitles = parseFileAndPutInDB("titles.tsv", Title.class, SQLOperation.INSERT);
-    if(mVerboseMode) System.out.println(numParsedTitles + " titles parsed");
+    // if(mVerboseMode) System.out.println("parsing titles...");
+    // int numParsedTitles = parseFileAndPutInDB("titles.tsv", Title.class, SQLOperation.INSERT);
+    // if(mVerboseMode) System.out.println(numParsedTitles + " titles parsed");
     if(mVerboseMode) System.out.println("parsing ratings...");
     int numParsedRatings = parseFileAndPutInDB("ratings.tsv", Title.class, SQLOperation.UPDATE);
     if(mVerboseMode) System.out.println(numParsedRatings + " ratings parsed");
@@ -46,6 +46,12 @@ public class BatchWorker {
   private void parseNames() {
     if(mVerboseMode) System.out.println("parsing names...");
     int numParsedNames = parseFileAndPutInDB("names.tsv", Name.class, SQLOperation.INSERT);
+    if(mVerboseMode) System.out.println(numParsedNames + " names parsed");
+  }
+  
+  private void parseEpisodes() {
+    if(mVerboseMode) System.out.println("parsing names...");
+    int numParsedNames = parseFileAndPutInDB("episodes.tsv", Episodes.class, SQLOperation.INSERT);
     if(mVerboseMode) System.out.println(numParsedNames + " names parsed");
   }
 
