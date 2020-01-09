@@ -9,15 +9,16 @@ For parsing and inserting imdb datasets into sql db
 3. Adjust connection settings in handlers/DBHandler.java if needed (probably don't need with MAMP/WAMP installed)
 
 # Prepare the data sets
-* Use the test data. Nothing needs to be changed. It's all there
+* Use the test data. Change dataFolder to "testData" in App.java
 
 OR
 
 * Use the real data
-1. Download "name.basics.tsv.gz", "title.basics.tsv.gz", and "title.ratings.tsv.gz" from https://datasets.imdbws.com/
-2. Unzip the data sets to a folder and change mDataPath in DataParser accordingly
-3. Name the files "titles.tsv", "ratings.tsv", and "names.tsv"
+1. Download "name.basics.tsv.gz", "title.basics.tsv.gz", "title.ratings.tsv.gz", and "title.episode.tsv.gz" from https://datasets.mdbws.com/
+2. Unzip the data sets to a folder called "data"
+3. Name the files "titles.tsv", "ratings.tsv", "names.tsv", and "episodes.tsv"
 
 # Run the app
 1. Change to verbose mode true in App.java if you want more detailed information during the parsing
-2. Run App.java
+2. Adjust batchSize if needed for memory
+3. Run App.java
