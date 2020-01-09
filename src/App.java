@@ -1,46 +1,22 @@
-import java.util.Collection;
-
-import handlers.DBHandler;
-import handlers.DataParser;
+import handlers.BatchWorker;
 import handlers.TimeFormatter;
-import model.IMDBData;
 
-class App {
+class BatchApp {
   public static void main(String[] args) {
     boolean verboseMode = true;
 
-    int batchSize = 100000;
-    DBHandler db = new DBHandler(verboseMode);
-    db.connect("imdb_data");
-      
-    // clear old data
-    db.exec("DELETE FROM titles");
-    db.exec("DELETE FROM names");
-    System.out.print(verboseMode ? "old data cleared from db\n\n" : "");
-    
-    System.out.println("Starting data parsing...");
-    
+    int batchSize = 10000;
+        
     long timestamp = System.currentTimeMillis();
     try {
       // Titles
-      DataParser parser = new DataParser(verboseMode);
-      Collection<IMDBData> titles = parser.parseTitles();
-      System.out.println(titles.size() + " titles parsed");
-      db.batchInsertion("titles", titles, batchSize);
-      System.out.println("titles inserted into db");
-      titles = null;
-    
-      Collection<IMDBData> names = parser.parseNames();
-      System.out.println(names.size() + " names parsed");
-      db.batchInsertion("names", names, batchSize);
-      System.out.println("names inserted into db");
+      BatchWorker worker = new BatchWorker(verboseMode, batchSize);
       
-      names = null;
-      // db.batchInsertion("professions", professions);
-      // System.out.println("-professions inserted into db");
-
+      System.out.println("Starting data parsing...");
+      worker.start();
+    
     } catch (OutOfMemoryError e) {
-      System.out.println(getUsedMemory());
+      System.out.println("used memory: " + getUsedMemory());
       e.printStackTrace();
     }
     System.out.println("All data inserted into db");

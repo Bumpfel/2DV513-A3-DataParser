@@ -12,7 +12,7 @@ import model.Name;
 
 public class BatchWorker {
   private String mDataPath = "data/";
-  private String mDatabase = "imdb_data";
+  private String mDatabase = "2dv513a3";
   private boolean mVerboseMode = false;
   private DBHandler mDB;
   private int mBatchSize;
