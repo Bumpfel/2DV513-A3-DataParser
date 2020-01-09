@@ -2,15 +2,16 @@ import java.util.Collection;
 
 import handlers.DBHandler;
 import handlers.DataParser;
+import handlers.TimeFormatter;
 import model.IMDBData;
 
 class App {
   public static void main(String[] args) {
-    boolean verboseMode = false;
+    boolean verboseMode = true;
 
     int batchSize = 100000;
     DBHandler db = new DBHandler(verboseMode);
-    db.connect("2dv513a3");
+    db.connect("imdb_data");
       
     // clear old data
     db.exec("DELETE FROM titles");
@@ -19,17 +20,18 @@ class App {
     
     System.out.println("Starting data parsing...");
     
+    long timestamp = System.currentTimeMillis();
     try {
       // Titles
       DataParser parser = new DataParser(verboseMode);
       Collection<IMDBData> titles = parser.parseTitles();
-      System.out.println(titles.size() + "titles parsed");
+      System.out.println(titles.size() + " titles parsed");
       db.batchInsertion("titles", titles, batchSize);
       System.out.println("titles inserted into db");
       titles = null;
     
       Collection<IMDBData> names = parser.parseNames();
-      System.out.println("names parsed");
+      System.out.println(names.size() + " names parsed");
       db.batchInsertion("names", names, batchSize);
       System.out.println("names inserted into db");
       
@@ -42,6 +44,7 @@ class App {
       e.printStackTrace();
     }
     System.out.println("All data inserted into db");
+    System.out.println("Total time: " + TimeFormatter.format(System.currentTimeMillis() - timestamp));
   }
 
 

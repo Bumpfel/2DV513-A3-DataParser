@@ -1,6 +1,7 @@
 package handlers;
 
 import java.sql.*;
+import java.util.Collection;
 
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
@@ -10,10 +11,10 @@ import model.Title;
 
 public class DBHandler {
   private Connection mConn;
-  private boolean mDebug = false;
+  private boolean mVerboseMode = false;
   
   public DBHandler(boolean debug) {
-    mDebug = debug;
+    mVerboseMode = debug;
   }
 
   public void connect(String database) {
@@ -36,10 +37,12 @@ public class DBHandler {
     }
   }
 
-  public void batchInsertion(String table, Iterable<IMDBData> data, int maxBatchSize) {
+  public void batchInsertion(String table, Collection<IMDBData> data, int maxBatchSize) {
     if(!data.iterator().hasNext()) {
       return;
     }
+    
+    int totalBatches = data.size() / maxBatchSize + 1;
 
     Class<?> dataClass = data.iterator().next().getClass();
     String colsString = null;
@@ -71,16 +74,63 @@ public class DBHandler {
         batchSize ++;
         if(batchSize == maxBatchSize) {
           stmt.executeBatch();
-          System.out.print(mDebug ? " batch #" + batchNr++ + " - inserted batch of " + batchSize + "\n" : "");
+          if(mVerboseMode) System.out.println(" batch insertion #" + batchNr++ + " of " + totalBatches);
           batchSize = 0;
         }
       }
       // execute remaining batch
       stmt.executeBatch();
-      System.out.print(mDebug ? " batch #" + batchNr++ + " - inserted batch of " + batchSize + "\n" : "");
-
+      if(maxBatchSize > 0) {
+        if(mVerboseMode) System.out.println(" batch insertion #" + batchNr++ + " of " + totalBatches);
+      }
+      
     } catch(MySQLIntegrityConstraintViolationException | BatchUpdateException e) {
       System.err.println("Error inserting into " + table + ". " + e.getMessage());
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void batchUpdate(String table, Collection<IMDBData> data, int maxBatchSize) {
+    if(!data.iterator().hasNext()) {
+      return;
+    }
+
+    int totalBatches = data.size() / maxBatchSize + 1;
+
+    String updateString = null;
+    Class<?> dataClass = data.iterator().next().getClass();
+    if(dataClass == Title.class) {
+      updateString = Title.getSQLUpdateString();
+    }
+    
+    try {
+      PreparedStatement stmt = mConn.prepareStatement("UPDATE " + table + " SET " + updateString + " WHERE id = ?");
+
+      int batchSize = 0;
+      int batchNr = 1;
+      for(IMDBData dataObject : data) {
+        String[] updateValues = dataObject.getUpdateValues();
+        for(int i = 1; i <= updateValues.length; i++) {
+          // replaces each parameter(?) with data values
+          stmt.setString(i, updateValues[i - 1]);
+        }
+        stmt.addBatch();
+        batchSize ++;
+        if(batchSize == maxBatchSize) {
+          stmt.executeBatch();
+          if(mVerboseMode) System.out.println(" update-batch #" + batchNr++ + " of " + totalBatches);
+          batchSize = 0;
+        }
+      }
+      // execute remaining batch
+      stmt.executeBatch();
+      if(maxBatchSize > 0) {
+        if(mVerboseMode) System.out.println(" update-batch #" + batchNr++ + " of " + totalBatches);
+      }
+
+    } catch(MySQLIntegrityConstraintViolationException | BatchUpdateException e) {
+      System.err.println("Error updating " + table + ". " + e.getMessage());
     } catch (SQLException e) {
       e.printStackTrace();
     }

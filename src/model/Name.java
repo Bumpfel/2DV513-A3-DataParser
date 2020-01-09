@@ -26,10 +26,15 @@ public class Name implements IMDBData {
 
   public static String getInsertCols() {
     return "id, primaryName, birthYear, deathYear, primaryProfession, knownForTitles";
-  } 
+  }
   public String[] getInsertValues() {
     return new String[] { id, primaryName, birthYear, deathYear, tempPrimaryProfession, knownForTitles };
     // return new String[] { id, primaryName, birthYear, deathYear, primaryProfession.toString(), knownForTitles };
+  }
+
+  public String[] getUpdateValues() {
+    // not implemented
+    return null;
   }
 
   @Override

@@ -27,6 +27,14 @@ public class Title implements IMDBData {
   public String[] getInsertValues() {
     return new String[] { id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres, averageRating, numVotes };
   }
+  
+  public static String getSQLUpdateString() {
+    return "averageRating = ?, numVotes = ?";
+  }
+
+  public String[] getUpdateValues() {
+    return new String[] { averageRating, numVotes, id };
+  }
 
   @Override
   public String toString() {

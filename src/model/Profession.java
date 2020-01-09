@@ -19,6 +19,11 @@ public class Profession implements IMDBData {
     return new String[] { id, professionName };
   }
 
+  public String[] getUpdateValues() {
+    // not implemented
+    return null;
+  }
+
   @Override
   public boolean equals(Object o) {
     if(o instanceof Profession) {
