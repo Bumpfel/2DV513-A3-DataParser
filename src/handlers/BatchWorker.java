@@ -12,16 +12,18 @@ import model.Title;
 import model.Name;
 
 public class BatchWorker {
-  private String mDataPath = "data/";
-  private String mDatabase = "2dv513a3";
+  private String mDataFolder;
+  private String mDatabase;
   private boolean mVerboseMode = false;
   private DBHandler mDB;
   private int mBatchSize;
   private enum SQLOperation { INSERT, UPDATE }
 
-  public BatchWorker(boolean debug, int batchSize) {
+  public BatchWorker(boolean debug, int batchSize, String database, String dataFolder) {
     mVerboseMode = debug;
     
+    mDatabase = database;
+    mDataFolder = dataFolder;
     mBatchSize = batchSize;
     mDB = new DBHandler(true);
     mDB.connect(mDatabase);
@@ -65,7 +67,7 @@ public class BatchWorker {
     Map<String, IMDBData> parsedObjects = new HashMap<>();
     int totalObjectsParsed = 0;
     try {
-      File file = new File(mDataPath + path);
+      File file = new File(mDataFolder + "/" + path);
       try (Scanner scanner = new Scanner(file)) {
 
         // record fields
@@ -100,7 +102,7 @@ public class BatchWorker {
           parsedObjects.put(object.getId(), object);
           attributes.clear();
 
-          if(batchSize >= mBatchSize) { // TODO körs inte för sista batchen
+          if(batchSize >= mBatchSize || !scanner.hasNextLine()) {
             batchSize = 0;
             if(sqlOperation == SQLOperation.INSERT) {
               mDB.batchInsertion(dataClass.getSimpleName() + "s", parsedObjects.values(), -1);
@@ -112,16 +114,7 @@ public class BatchWorker {
             totalObjectsParsed += parsedObjects.size();
             parsedObjects.clear();
           }
-        }
-        if(sqlOperation == SQLOperation.INSERT) { // TODO hemsk kodduplicering
-          mDB.batchInsertion(dataClass.getSimpleName() + "s", parsedObjects.values(), -1);
-          if(mVerboseMode) System.out.println(" insert-batch #" + ++batchNr + " of " + totalBatches);
-        } else if(sqlOperation == SQLOperation.UPDATE) {
-          mDB.batchUpdate(dataClass.getSimpleName() + "s", parsedObjects.values(), -1);
-          if(mVerboseMode) System.out.println(" update-batch #" + ++batchNr + " of " + totalBatches);
-        }
-        totalObjectsParsed += parsedObjects.size();
-        
+        }        
       }
 
     } catch (Exception e) {
@@ -130,7 +123,6 @@ public class BatchWorker {
     }
     return totalObjectsParsed;
   }
-
 
   /**
    * Calculates total # or batches
