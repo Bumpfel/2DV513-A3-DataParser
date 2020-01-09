@@ -12,7 +12,7 @@ import model.Title;
 import model.Name;
 
 public class DataParser {
-    private String mDataPath = "testData/";
+    private String mDataPath = "data/";
     private boolean mDebug = false;
 
     public DataParser(boolean debug) {
