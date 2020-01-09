@@ -1,7 +1,7 @@
 import handlers.BatchWorker;
 import handlers.TimeFormatter;
 
-class BatchApp {
+class App {
   public static void main(String[] args) {
     boolean verboseMode = true;
 
@@ -13,7 +13,7 @@ class BatchApp {
       BatchWorker worker = new BatchWorker(verboseMode, batchSize);
       
       System.out.println("Starting data parsing...");
-      worker.start();
+      worker.start(false);
     
     } catch (OutOfMemoryError e) {
       System.out.println("used memory: " + getUsedMemory());

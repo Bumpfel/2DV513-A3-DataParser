@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import model.Episode;
 import model.IMDBData;
 import model.Title;
 import model.Name;
@@ -24,20 +25,25 @@ public class BatchWorker {
     mBatchSize = batchSize;
     mDB = new DBHandler(true);
     mDB.connect(mDatabase);
-    // mDB.exec("TRUNCATE titles");
-    // mDB.exec("TRUNCATE names");
-    // System.out.print(mVerboseMode ? "old data cleared from db\n\n" : "");
   }
+  
+  public void start(boolean truncateData) {
+    if(truncateData) {
+      mDB.exec("TRUNCATE titles");
+      mDB.exec("TRUNCATE names");
+      mDB.exec("TRUNCATE episodes");
+      System.out.print(mVerboseMode ? "old data cleared from db\n\n" : "");
+    }
 
-  public void start() {
     parseTitles();
     parseNames();
+    parseEpisodes();
   }
 
   private void parseTitles() {
-    // if(mVerboseMode) System.out.println("parsing titles...");
-    // int numParsedTitles = parseFileAndPutInDB("titles.tsv", Title.class, SQLOperation.INSERT);
-    // if(mVerboseMode) System.out.println(numParsedTitles + " titles parsed");
+    if(mVerboseMode) System.out.println("parsing titles...");
+    int numParsedTitles = parseFileAndPutInDB("titles.tsv", Title.class, SQLOperation.INSERT);
+    if(mVerboseMode) System.out.println(numParsedTitles + " titles parsed");
     if(mVerboseMode) System.out.println("parsing ratings...");
     int numParsedRatings = parseFileAndPutInDB("ratings.tsv", Title.class, SQLOperation.UPDATE);
     if(mVerboseMode) System.out.println(numParsedRatings + " ratings parsed");
@@ -50,9 +56,9 @@ public class BatchWorker {
   }
   
   private void parseEpisodes() {
-    if(mVerboseMode) System.out.println("parsing names...");
-    int numParsedNames = parseFileAndPutInDB("episodes.tsv", Episodes.class, SQLOperation.INSERT);
-    if(mVerboseMode) System.out.println(numParsedNames + " names parsed");
+    if(mVerboseMode) System.out.println("parsing episodes...");
+    int numParsedNames = parseFileAndPutInDB("episodes.tsv", Episode.class, SQLOperation.INSERT);
+    if(mVerboseMode) System.out.println(numParsedNames + " episodes parsed");
   }
 
   private int parseFileAndPutInDB(String path, Class<?> dataClass, SQLOperation sqlOperation) {
@@ -86,6 +92,8 @@ public class BatchWorker {
             object = new Title(attributes);
           } else if (dataClass == Name.class) {
             object = new Name(attributes);
+          } else if (dataClass == Episode.class) {
+            object = new Episode(attributes);
           } else {
             continue;
           }

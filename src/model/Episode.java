@@ -1,17 +1,15 @@
 package model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-public class Episodes implements IMDBData {
+public class Episode implements IMDBData {
   private String id, parentId, seasonNumber, episodeNumber;
 
   public String getId() { return id; }
 
-  public Episodes(Map<String, String> map) {
-    id = map.get("nconst");
-    parentId = map.get("parentId");
+  public Episode(Map<String, String> map) {
+    id = map.get("tconst");
+    parentId = map.get("parentTconst");
     seasonNumber = map.get("seasonNumber");
     episodeNumber = map.get("episodeNumber");
   }
