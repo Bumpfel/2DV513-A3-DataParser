@@ -11,6 +11,8 @@ import model.IMDBData;
 import model.Title;
 import model.Name;
 
+// TODO filtrera ut viss data för att minska datamängd. titleType='short'
+
 public class BatchWorker {
   private String mDataFolder;
   private String mDatabase;
@@ -31,18 +33,18 @@ public class BatchWorker {
   
   public void start(boolean truncateData) {
     if(truncateData) {
-      mDB.exec("TRUNCATE titles");
-      mDB.exec("TRUNCATE names");
-      mDB.exec("TRUNCATE episodes");
+      mDB.exec("DELETE FROM episodes");
+      mDB.exec("DELETE FROM titles");
+      mDB.exec("DELETE FROM names");
       System.out.print(mVerboseMode ? "old data cleared from db\n\n" : "");
     }
 
-    parseTitles();
+    parseTitlesAndRatings();
     parseNames();
     parseEpisodes();
   }
 
-  private void parseTitles() {
+  private void parseTitlesAndRatings() {
     if(mVerboseMode) System.out.println("parsing titles...");
     int numParsedTitles = parseFileAndPutInDB("titles.tsv", Title.class, SQLOperation.INSERT);
     if(mVerboseMode) System.out.println(numParsedTitles + " titles parsed");
@@ -63,7 +65,7 @@ public class BatchWorker {
     if(mVerboseMode) System.out.println(numParsedNames + " episodes parsed");
   }
 
-  private int parseFileAndPutInDB(String path, Class<?> dataClass, SQLOperation sqlOperation) {
+  private int parseFileAndPutInDB(String path, Class<?> clazz, SQLOperation sqlOperation) {
     Map<String, IMDBData> parsedObjects = new HashMap<>();
     int totalObjectsParsed = 0;
     try {
@@ -88,27 +90,19 @@ public class BatchWorker {
           for (int i = 0; i < fields.length; i++) {
             attributes.put(fields[i], data[i]);
           }
+        
+          IMDBData object = (IMDBData) clazz.getDeclaredConstructors()[0].newInstance(attributes); // instantiation through reflection
 
-          IMDBData object = null;
-          if (dataClass == Title.class) {
-            object = new Title(attributes);
-          } else if (dataClass == Name.class) {
-            object = new Name(attributes);
-          } else if (dataClass == Episode.class) {
-            object = new Episode(attributes);
-          } else {
-            continue;
-          }
           parsedObjects.put(object.getId(), object);
           attributes.clear();
 
           if(batchSize >= mBatchSize || !scanner.hasNextLine()) {
             batchSize = 0;
             if(sqlOperation == SQLOperation.INSERT) {
-              mDB.batchInsertion(dataClass.getSimpleName() + "s", parsedObjects.values(), -1);
+              mDB.batchInsertion(clazz.getSimpleName() + "s", parsedObjects.values(), -1);
               if(mVerboseMode) System.out.println(" insert-batch #" + ++batchNr + " of " + totalBatches);
             } else if(sqlOperation == SQLOperation.UPDATE) {
-              mDB.batchUpdate(dataClass.getSimpleName() + "s", parsedObjects.values(), -1);
+              mDB.batchUpdate(clazz.getSimpleName() + "s", parsedObjects.values(), -1);
               if(mVerboseMode) System.out.println(" update-batch #" + ++batchNr + " of " + totalBatches);
             }
             totalObjectsParsed += parsedObjects.size();
