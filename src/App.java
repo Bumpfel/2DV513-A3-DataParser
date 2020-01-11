@@ -3,18 +3,19 @@ import handlers.TimeFormatter;
 
 class App {
   public static void main(String[] args) {
+    // *** Settings - change if needed ***/
     boolean verboseMode = true;
     int batchSize = 50000;
     String database = "imdb_data_test";
-    String dataFolder = "data";
+    String dataFolder = "testData";
+    // *************************** //
 
     long timestamp = System.currentTimeMillis();
     try {
-      // Titles
       BatchWorker worker = new BatchWorker(verboseMode, batchSize, database, dataFolder);
       
       System.out.println("Starting data parsing...");
-      worker.start(false);
+      worker.start(true);
     
     } catch (OutOfMemoryError e) {
       System.err.println("Used memory: " + getUsedMemory());

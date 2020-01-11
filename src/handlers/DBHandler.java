@@ -12,6 +12,8 @@ import model.Title;
 public class DBHandler {
   private Connection mConn;
   private boolean mVerboseMode = false;
+
+  public int insertion_fails;
   
   public DBHandler(boolean debug) {
     mVerboseMode = debug;
@@ -73,15 +75,25 @@ public class DBHandler {
         stmt.addBatch();
         batchSize ++;
         if(batchSize == maxBatchSize) {
-          stmt.executeBatch();
-          if(mVerboseMode) System.out.println(" batch insertion #" + batchNr++ + " of " + totalBatches);
+          try {
+            stmt.executeBatch();
+          } catch (SQLException e) {
+            insertion_fails++;
+            System.err.println("error on remaining batch" + e.getMessage());
+          }
+          if(mVerboseMode) System.out.println(" batch insertion #" + batchNr++); // + " of " + totalBatches);
           batchSize = 0;
         }
       }
       // execute remaining batch
-      stmt.executeBatch();
+      try {
+        stmt.executeBatch();
+      } catch (SQLException e) {
+        insertion_fails++;
+        System.err.println("error on remaining batch" + e.getMessage());
+      }
       if(maxBatchSize > 0) {
-        if(mVerboseMode) System.out.println(" batch insertion #" + batchNr++ + " of " + totalBatches);
+        if(mVerboseMode) System.out.println(" batch insertion #" + batchNr++); // + " of " + totalBatches);
       }
       
     } catch(MySQLIntegrityConstraintViolationException | BatchUpdateException e) {

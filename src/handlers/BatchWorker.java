@@ -2,6 +2,7 @@ package handlers;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,8 +25,8 @@ public class BatchWorker {
   private int mBatchSize;
   private enum SQLOperation { INSERT, UPDATE }
 
-  public BatchWorker(boolean debug, int batchSize, String database, String dataFolder) {
-    mVerboseMode = debug;
+  public BatchWorker(boolean verboseMode, int batchSize, String database, String dataFolder) {
+    mVerboseMode = verboseMode;
     
     mDatabase = database;
     mDataFolder = dataFolder;
@@ -36,10 +37,11 @@ public class BatchWorker {
   
   public void start(boolean truncateData) {
     if(truncateData) {
-      mDB.exec("DELETE FROM titles");
-      mDB.exec("DELETE FROM genres");
-      mDB.exec("DELETE FROM genretitlerelations");
-      System.out.print(mVerboseMode ? "old data cleared from db\n\n" : "");
+      if(mVerboseMode) System.out.println("deleting old data...");
+      mDB.exec("TRUNCATE genretitlerelations");
+      mDB.exec("TRUNCATE titles");
+      mDB.exec("TRUNCATE genres");
+      if(mVerboseMode) System.out.println("old data cleared from db\n");
     }
 
     parseAll();
@@ -48,14 +50,14 @@ public class BatchWorker {
     
   private void parseAll() {
     if(mVerboseMode) System.out.println("parsing titles...");
-    int numParsedTitles = parseFileAndPutInDB("titles.tsv", Title.class, SQLOperation.INSERT);
+    int numParsedTitles = parseFileAndPutInDB("titles.tsv", SQLOperation.INSERT);
     if(mVerboseMode) System.out.println(numParsedTitles + " titles parsed");
     if(mVerboseMode) System.out.println("parsing ratings...");
-    int numParsedRatings = parseFileAndPutInDB("ratings.tsv", Title.class, SQLOperation.UPDATE);
+    int numParsedRatings = parseFileAndPutInDB("ratings.tsv", SQLOperation.UPDATE);
     if(mVerboseMode) System.out.println(numParsedRatings + " ratings parsed");
   }
 
-  private int parseFileAndPutInDB(String path, Class<?> clazz, SQLOperation sqlOperation) {
+  private int parseFileAndPutInDB(String path, SQLOperation sqlOperation) {
     Map<String, IMDBData> parsedObjects = new HashMap<>();
     List<IMDBData> genreTitleRelations = new ArrayList<>();
     Set<Genre> genres = new HashSet<>();
@@ -84,44 +86,41 @@ public class BatchWorker {
             attributes.put(fields[i], data[i]);
           }
         
-          // discard titleType="short"
-          // String titleType = attributes.get("titleType");
-          // if(titleType != null && titleType.equalsIgnoreCase("short")) {
-          //   attributes.clear();
-          //   continue;
-          // }
+          // discard titleType="tvEpisode"
+          String titleType = attributes.get("titleType");
+          if(titleType != null && titleType.equalsIgnoreCase("tvEpisode")) {
+            attributes.clear();
+            continue;
+          }
 
-          IMDBData object = (IMDBData) clazz.getDeclaredConstructors()[0].newInstance(attributes); // instantiation through reflection
+          IMDBData object = (IMDBData) new Title(attributes);
           parsedObjects.put(object.getId(), object);
 
           // genres
-          if(clazz == Title.class) {
-            String genresString = attributes.get("genres");
-            if(genresString != null) {
-              for(String genreString : genresString.split(",")) {
-                Genre genre = new Genre(genres.size(), genreString);
-                if(!genres.contains(genre)) {
-                  genres.add(genre);
-                  mDB.exec("INSERT IGNORE INTO genres (" + Genre.getInsertCols() + ") VALUES (" + genre.getInsertValuesString() + ")");
-                  if(mVerboseMode) System.out.println(" found and inserted new genre " + genre);
-                }
-                // batchSize++;
-                genreTitleRelations.add(new GenreTitleRelation(genre.getId(), attributes.get("tconst")));
+          String genresString = attributes.get("genres");
+          if(genresString != null) {
+            for(String genreString : genresString.split(",")) {
+              Genre genre = new Genre(genres.size(), genreString);
+              if(!genres.contains(genre)) {
+                genres.add(genre);
+                mDB.exec("INSERT INTO genres (" + Genre.getInsertCols() + ") VALUES (" + genre.getInsertValuesString() + ")");
+                if(mVerboseMode) System.out.println(" found and inserted new genre " + genre);
               }
+              // batchSize++;
+              genreTitleRelations.add(new GenreTitleRelation(genre.getId(), attributes.get("tconst")));
             }
           }
 
           if(batchSize >= mBatchSize || !scanner.hasNextLine()) {
             batchSize = 0;
             if(sqlOperation == SQLOperation.INSERT) {
-              mDB.batchInsertion(clazz.getSimpleName() + "s", parsedObjects.values(), -1);
+              mDB.batchInsertion("titles", parsedObjects.values(), -1);
               if(!genreTitleRelations.isEmpty()) {
                 mDB.batchInsertion("genretitlerelations", genreTitleRelations, -1);
-                // System.out.println("INSERTING " + genreTitleRelations.size() + " relations");
               }
               if(mVerboseMode) System.out.println(" insert-batch #" + ++batchNr + " of " + totalBatches);
             } else if(sqlOperation == SQLOperation.UPDATE) {
-              mDB.batchUpdate(clazz.getSimpleName() + "s", parsedObjects.values(), -1);
+              mDB.batchUpdate("titles", parsedObjects.values(), -1);
               if(mVerboseMode) System.out.println(" update-batch #" + ++batchNr + " of " + totalBatches);
             }
             totalObjectsParsed += parsedObjects.size();
@@ -129,20 +128,18 @@ public class BatchWorker {
             parsedObjects.clear();
           }
         }
-
-        // System.out.println("Genres size: " + genres.size());
-        // System.out.println(genres);
-
       }
 
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(-1);
     }
+    System.out.println(mDB.insertion_fails + " insertion fails");
     return totalObjectsParsed;
   }
   
   
+  // TODO batches inaccurate with new structure due to titleType discarding (and genreTitleRelations)
   /**
    * Calculates total # or batches
    * Uses up some cpu power to count # lines in file. set verbose mode to false to disable

@@ -46,7 +46,6 @@ DROP TABLE IF EXISTS `genretitlerelations`;
 CREATE TABLE IF NOT EXISTS `genretitlerelations` (
   `titleId` varchar(10) NOT NULL,
   `genreId` smallint(2) NOT NULL,
-  PRIMARY KEY (`titleId`,`genreId`),
   KEY `titleId` (`titleId`),
   KEY `genreId` (`genreId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
