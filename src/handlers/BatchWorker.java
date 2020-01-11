@@ -2,7 +2,6 @@ package handlers;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +37,7 @@ public class BatchWorker {
   public void start(boolean truncateData) {
     if(truncateData) {
       if(mVerboseMode) System.out.println("deleting old data...");
+      // foreign keys must be removed first if used
       mDB.exec("TRUNCATE genretitlerelations");
       mDB.exec("TRUNCATE titles");
       mDB.exec("TRUNCATE genres");
@@ -114,13 +114,13 @@ public class BatchWorker {
           if(batchSize >= mBatchSize || !scanner.hasNextLine()) {
             batchSize = 0;
             if(sqlOperation == SQLOperation.INSERT) {
-              mDB.batchInsertion("titles", parsedObjects.values(), -1);
+              mDB.batchInsertion("titles", parsedObjects.values());
               if(!genreTitleRelations.isEmpty()) {
-                mDB.batchInsertion("genretitlerelations", genreTitleRelations, -1);
+                mDB.batchInsertion("genretitlerelations", genreTitleRelations);
               }
-              if(mVerboseMode) System.out.println(" insert-batch #" + ++batchNr + " of " + totalBatches);
+              if(mVerboseMode) System.out.println(" insert-batch #" + ++batchNr); // + " of " + totalBatches);
             } else if(sqlOperation == SQLOperation.UPDATE) {
-              mDB.batchUpdate("titles", parsedObjects.values(), -1);
+              mDB.batchUpdate("titles", parsedObjects.values());
               if(mVerboseMode) System.out.println(" update-batch #" + ++batchNr + " of " + totalBatches);
             }
             totalObjectsParsed += parsedObjects.size();
@@ -134,7 +134,6 @@ public class BatchWorker {
       e.printStackTrace();
       System.exit(-1);
     }
-    System.out.println(mDB.insertion_fails + " insertion fails");
     return totalObjectsParsed;
   }
   

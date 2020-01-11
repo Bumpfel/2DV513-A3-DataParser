@@ -7,7 +7,7 @@ class App {
     boolean verboseMode = true;
     int batchSize = 50000;
     String database = "imdb_data_test";
-    String dataFolder = "testData";
+    String dataFolder = "data";
     // *************************** //
 
     long timestamp = System.currentTimeMillis();
@@ -15,7 +15,7 @@ class App {
       BatchWorker worker = new BatchWorker(verboseMode, batchSize, database, dataFolder);
       
       System.out.println("Starting data parsing...");
-      worker.start(true);
+      worker.start(false);
     
     } catch (OutOfMemoryError e) {
       System.err.println("Used memory: " + getUsedMemory());
