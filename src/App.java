@@ -5,7 +5,7 @@ class App {
   public static void main(String[] args) {
     boolean verboseMode = true;
     int batchSize = 50000;
-    String database = "2dv513a3";
+    String database = "imdb_data_test";
     String dataFolder = "data";
 
     long timestamp = System.currentTimeMillis();

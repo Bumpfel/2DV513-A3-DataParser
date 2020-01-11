@@ -3,7 +3,7 @@ package model;
 import java.util.Map;
 
 public class Title implements IMDBData {
-  private String id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres;
+  private String id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes;
   public String averageRating, numVotes;
 
   public String getId() { return id; }
@@ -17,15 +17,14 @@ public class Title implements IMDBData {
     startYear = map.get("startYear");
     endYear = map.get("endYear");
     runtimeMinutes = map.get("runtimeMinutes");
-    genres = map.get("genres");
     averageRating = map.get("averageRating");
     numVotes = map.get("numVotes");
  }
   public static String getInsertCols() {
-    return "id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres, averageRating, numVotes";
+    return "id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, averageRating, numVotes";
   }
   public String[] getInsertValues() {
-    return new String[] { id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, genres, averageRating, numVotes };
+    return new String[] { id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, averageRating, numVotes };
   }
   
   public static String getSQLUpdateString() {

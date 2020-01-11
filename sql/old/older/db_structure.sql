@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 11, 2020 at 07:41 PM
+-- Generation Time: Jan 09, 2020 at 07:20 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -19,36 +19,38 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `imdb_data_test`
+-- Database: `2dv513a3`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `genres`
+-- Table structure for table `episodes`
 --
 
-DROP TABLE IF EXISTS `genres`;
-CREATE TABLE IF NOT EXISTS `genres` (
-  `id` smallint(2) NOT NULL,
-  `genreName` varchar(20) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `genreName` (`genreName`)
+DROP TABLE IF EXISTS `episodes`;
+CREATE TABLE IF NOT EXISTS `episodes` (
+  `id` varchar(10) NOT NULL,
+  `parentId` varchar(10) NOT NULL,
+  `seasonNumber` int(2) NOT NULL,
+  `episodeNumber` int(3) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `genretitlerelations`
+-- Table structure for table `names`
 --
 
-DROP TABLE IF EXISTS `genretitlerelations`;
-CREATE TABLE IF NOT EXISTS `genretitlerelations` (
-  `titleId` varchar(10) NOT NULL,
-  `genreId` smallint(2) NOT NULL,
-  PRIMARY KEY (`titleId`,`genreId`),
-  KEY `titleId` (`titleId`),
-  KEY `genreId` (`genreId`)
+DROP TABLE IF EXISTS `names`;
+CREATE TABLE IF NOT EXISTS `names` (
+  `id` varchar(10) NOT NULL,
+  `primaryName` varchar(100) NOT NULL,
+  `birthYear` mediumint(4) NOT NULL,
+  `deathYear` mediumint(4) NOT NULL,
+  `primaryProfession` text NOT NULL,
+  `knownForTitles` text NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -61,29 +63,17 @@ DROP TABLE IF EXISTS `titles`;
 CREATE TABLE IF NOT EXISTS `titles` (
   `id` varchar(10) NOT NULL,
   `titleType` varchar(12) NOT NULL,
-  `primaryTitle` varchar(410) NOT NULL,
+  `primaryTitle` text NOT NULL,
   `originalTitle` text NOT NULL,
   `isAdult` tinyint(1) NOT NULL,
   `startYear` mediumint(4) NOT NULL,
   `endYear` mediumint(4) NOT NULL,
   `runtimeMinutes` mediumint(3) NOT NULL,
+  `genres` text NOT NULL,
   `averageRating` decimal(2,0) NOT NULL,
   `numVotes` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `titleType` (`titleType`),
-  KEY `primaryTitle` (`primaryTitle`)
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `genretitlerelations`
---
-ALTER TABLE `genretitlerelations`
-  ADD CONSTRAINT `genretitlerelations_ibfk_1` FOREIGN KEY (`genreId`) REFERENCES `genres` (`id`),
-  ADD CONSTRAINT `genretitlerelations_ibfk_2` FOREIGN KEY (`titleId`) REFERENCES `titles` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

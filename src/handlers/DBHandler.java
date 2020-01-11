@@ -5,9 +5,8 @@ import java.util.Collection;
 
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
-import model.Episode;
+import model.GenreTitleRelation;
 import model.IMDBData;
-import model.Name;
 import model.Title;
 
 public class DBHandler {
@@ -49,10 +48,8 @@ public class DBHandler {
     String colsString = null;
     if(dataClass == Title.class) {
       colsString = Title.getInsertCols();
-    } else if(dataClass == Name.class) {
-      colsString = Name.getInsertCols();
-    } else if(dataClass == Episode.class) {
-      colsString = Episode.getInsertCols();
+    } else if(dataClass == GenreTitleRelation.class) {
+      colsString = GenreTitleRelation.getInsertCols();
     }
    
     // builds a comma-separated string "?, ?, ?, ..." with a parameter(?) for each column     

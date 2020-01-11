@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 09, 2020 at 07:20 PM
+-- Generation Time: Jan 10, 2020 at 04:41 PM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `2dv513a3`
+-- Database: `imdb_data_foreignkeys`
 --
 
 -- --------------------------------------------------------
@@ -33,7 +33,9 @@ CREATE TABLE IF NOT EXISTS `episodes` (
   `id` varchar(10) NOT NULL,
   `parentId` varchar(10) NOT NULL,
   `seasonNumber` int(2) NOT NULL,
-  `episodeNumber` int(3) NOT NULL
+  `episodeNumber` int(3) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `parentId` (`parentId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -50,7 +52,8 @@ CREATE TABLE IF NOT EXISTS `names` (
   `deathYear` mediumint(4) NOT NULL,
   `primaryProfession` text NOT NULL,
   `knownForTitles` text NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `primaryName` (`primaryName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -63,8 +66,8 @@ DROP TABLE IF EXISTS `titles`;
 CREATE TABLE IF NOT EXISTS `titles` (
   `id` varchar(10) NOT NULL,
   `titleType` varchar(12) NOT NULL,
-  `primaryTitle` text NOT NULL,
-  `originalTitle` text NOT NULL,
+  `primaryTitle` varchar(410) NOT NULL,
+  `originalTitle` varchar(410) NOT NULL,
   `isAdult` tinyint(1) NOT NULL,
   `startYear` mediumint(4) NOT NULL,
   `endYear` mediumint(4) NOT NULL,
@@ -72,8 +75,19 @@ CREATE TABLE IF NOT EXISTS `titles` (
   `genres` text NOT NULL,
   `averageRating` decimal(2,0) NOT NULL,
   `numVotes` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `primaryTitle` (`primaryTitle`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `episodes`
+--
+ALTER TABLE `episodes`
+  ADD CONSTRAINT `episodes_ibfk_1` FOREIGN KEY (`parentId`) REFERENCES `titles` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
