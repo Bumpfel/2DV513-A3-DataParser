@@ -14,7 +14,7 @@ For parsing and inserting imdb datasets into sql db
 OR
 
 * Use the real data
-1. Download "title.basics.tsv.gz", and "title.ratings.tsv.gz" from https://datasets.mdbws.com/
+1. Download "title.basics.tsv.gz", and "title.ratings.tsv.gz" from https://datasets.imdbws.com/
 2. Unzip the data sets to a folder called "data"
 3. Name the files "titles.tsv", "ratings.tsv"
 
