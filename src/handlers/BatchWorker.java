@@ -138,7 +138,7 @@ public class BatchWorker {
   }
   
   
-  // TODO batches inaccurate with new structure due to titleType discarding (and genreTitleRelations)
+  // TODO batches due to titleType discarding batches can be of unequal sizes
   /**
    * Calculates total # or batches
    * Uses up some cpu power to count # lines in file. set verbose mode to false to disable

@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `titles` (
   `id` varchar(10) NOT NULL,
   `titleType` varchar(12) NOT NULL,
   `primaryTitle` varchar(410) NOT NULL,
-  `originalTitle` text NOT NULL,
+  `originalTitle` varchar(410) NOT NULL,
   `isAdult` tinyint(1) NOT NULL,
   `startYear` mediumint(4) NOT NULL,
   `endYear` mediumint(4) NOT NULL,
@@ -70,7 +70,8 @@ CREATE TABLE IF NOT EXISTS `titles` (
   `numVotes` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `titleType` (`titleType`),
-  KEY `primaryTitle` (`primaryTitle`)
+  KEY `primaryTitle` (`primaryTitle`),
+  KEY `primaryTitle` (`originalTitle`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
