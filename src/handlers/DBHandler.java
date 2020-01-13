@@ -3,6 +3,7 @@ package handlers;
 import java.sql.*;
 import java.util.Collection;
 
+import com.mysql.jdbc.MysqlDataTruncation;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
 import model.GenreTitleRelation;
@@ -11,10 +12,8 @@ import model.Title;
 
 public class DBHandler {
   private Connection mConn;
-  private boolean mVerboseMode = false;
   
-  public DBHandler(boolean verboseMode) {
-    mVerboseMode = verboseMode;
+  public DBHandler() {
   }
 
   public void connect(String database) {
@@ -70,8 +69,11 @@ public class DBHandler {
       }
       stmt.executeBatch();
       
+    } catch(MysqlDataTruncation e) {
+      e.printStackTrace();
     } catch(MySQLIntegrityConstraintViolationException | BatchUpdateException e) {
-      System.err.println("Error inserting into " + table + ". " + e.getMessage());
+      e.printStackTrace();
+      // System.err.println("Error inserting into " + table + ". " + e.getMessage());
       System.exit(-1);
     } catch (SQLException e) {
       e.printStackTrace();

@@ -30,7 +30,7 @@ public class BatchWorker {
     mDatabase = database;
     mDataFolder = dataFolder;
     mBatchSize = batchSize;
-    mDB = new DBHandler(true);
+    mDB = new DBHandler();
     mDB.connect(mDatabase);
   }
   
@@ -38,9 +38,11 @@ public class BatchWorker {
     if(truncateData) {
       if(mVerboseMode) System.out.println("deleting old data...");
       // foreign keys must be removed first if used
+      mDB.exec("SET FOREIGN_KEY_CHECKS = 0");
       mDB.exec("TRUNCATE genretitlerelations");
       mDB.exec("TRUNCATE titles");
       mDB.exec("TRUNCATE genres");
+      mDB.exec("SET FOREIGN_KEY_CHECKS = 1");
       if(mVerboseMode) System.out.println("old data cleared from db\n");
     }
 
@@ -60,7 +62,7 @@ public class BatchWorker {
   private int parseFileAndPutInDB(String path, SQLOperation sqlOperation) {
     Map<String, IMDBData> parsedObjects = new HashMap<>();
     List<IMDBData> genreTitleRelations = new ArrayList<>();
-    Set<Genre> genres = new HashSet<>();
+    Map<String, Genre> genres = new HashMap<>();
 
     int totalObjectsParsed = 0;
     try {
@@ -100,14 +102,14 @@ public class BatchWorker {
           String genresString = attributes.get("genres");
           if(genresString != null) {
             for(String genreString : genresString.split(",")) {
-              Genre genre = new Genre(genres.size(), genreString);
-              if(!genres.contains(genre)) {
-                genres.add(genre);
-                mDB.exec("INSERT INTO genres (" + Genre.getInsertCols() + ") VALUES (" + genre.getInsertValuesString() + ")");
+              if(!genres.containsKey(genreString)) {
+                Genre genre = new Genre(genres.size(), genreString);
+                genres.put(genreString, genre);
+                mDB.exec("INSERT IGNORE INTO genres (" + Genre.getInsertCols() + ") VALUES (" + genre.getInsertValuesString() + ")");
                 if(mVerboseMode) System.out.println(" found and inserted new genre " + genre);
               }
               // batchSize++;
-              genreTitleRelations.add(new GenreTitleRelation(genre.getId(), attributes.get("tconst")));
+              genreTitleRelations.add(new GenreTitleRelation(genres.get(genreString).getId(), attributes.get("tconst"))); // TODO genre.getId() wrong!!!!!!!!!
             }
           }
 
