@@ -1,11 +1,11 @@
 package model;
 
-public class GenreTitleRelation implements IMDBData {
+public class TitleGenreRelation implements IMDBData {
   private String genreId, titleId;
 
   public String getId() { return null; }
 
-  public GenreTitleRelation(String _genreId, String _titleId) {
+  public TitleGenreRelation(String _genreId, String _titleId) {
     genreId = _genreId;
     titleId = _titleId;
   }
@@ -19,6 +19,12 @@ public class GenreTitleRelation implements IMDBData {
 
   public String[] getUpdateValues() {
     // not implemented
+    return null;
+  }
+
+  @Override
+  public String getInsertValuesString() {
+    // TODO Auto-generated method stub
     return null;
   }
 

@@ -12,9 +12,10 @@ import java.util.Scanner;
 import java.util.Set;
 
 import model.Genre;
-import model.GenreTitleRelation;
 import model.IMDBData;
 import model.Title;
+import model.TitleGenreRelation;
+import model.TitleType;
 
 public class BatchWorker {
   private String mDataFolder;
@@ -37,23 +38,26 @@ public class BatchWorker {
   public void start(boolean truncateData) {
     if(truncateData) {
       if(mVerboseMode) System.out.println("deleting old data...");
-      // foreign keys must be removed first if used
       mDB.exec("SET FOREIGN_KEY_CHECKS = 0");
-      mDB.exec("TRUNCATE genretitlerelations");
+      mDB.exec("TRUNCATE titletypes");
+      mDB.exec("TRUNCATE titlegenrerelations");
       mDB.exec("TRUNCATE titles");
       mDB.exec("TRUNCATE genres");
       mDB.exec("SET FOREIGN_KEY_CHECKS = 1");
       if(mVerboseMode) System.out.println("old data cleared from db\n");
     }
 
-    parseAll();
+    parseTitlesAndGenres();
+    parseRatings();
   }
- 
-    
-  private void parseAll() {
+     
+  private void parseTitlesAndGenres() {
     if(mVerboseMode) System.out.println("parsing titles...");
     int numParsedTitles = parseFileAndPutInDB("titles.tsv", SQLOperation.INSERT);
     if(mVerboseMode) System.out.println(numParsedTitles + " titles parsed");
+  }
+  
+  private void parseRatings() {
     if(mVerboseMode) System.out.println("parsing ratings...");
     int numParsedRatings = parseFileAndPutInDB("ratings.tsv", SQLOperation.UPDATE);
     if(mVerboseMode) System.out.println(numParsedRatings + " ratings parsed");
@@ -61,8 +65,9 @@ public class BatchWorker {
 
   private int parseFileAndPutInDB(String path, SQLOperation sqlOperation) {
     Map<String, IMDBData> parsedObjects = new HashMap<>();
-    List<IMDBData> genreTitleRelations = new ArrayList<>();
+    List<IMDBData> titleGenreRelations = new ArrayList<>();
     Map<String, Genre> genres = new HashMap<>();
+    Map<String, TitleType> titleTypes = new HashMap<>();
 
     int totalObjectsParsed = 0;
     try {
@@ -88,28 +93,45 @@ public class BatchWorker {
             attributes.put(fields[i], data[i]);
           }
         
-          // discard titleType="tvEpisode"
-          String titleType = attributes.get("titleType");
-          if(titleType != null && titleType.equalsIgnoreCase("tvEpisode")) {
-            attributes.clear();
-            continue;
+          // titleTypes
+          String titleTypeName = attributes.get("titleType");
+          if(titleTypeName != null) {
+            // discard titleType="tvEpisode"
+            if(titleTypeName.equalsIgnoreCase("tvEpisode")) {
+              attributes.clear();
+              continue;
+            }
+            
+            // add titleType when new are found
+            if(!titleTypes.containsKey(titleTypeName)) {
+              TitleType newTitleType = new TitleType(titleTypes.size(), titleTypeName);
+              titleTypes.put(titleTypeName, newTitleType);
+              mDB.insert(newTitleType);
+              if(mVerboseMode) System.out.println(" found and inserted new titleType " + titleTypeName);
+            }
           }
 
           IMDBData object = (IMDBData) new Title(attributes);
+          // set typeId
+          TitleType titleType = titleTypes.get(attributes.get("titleType"));
+          if (titleType != null) {
+            ((Title) object).setTitleTypeId(titleType.getId());
+          }
           parsedObjects.put(object.getId(), object);
 
-          // genres
+          // genres and relations
           String genresString = attributes.get("genres");
           if(genresString != null) {
             for(String genreString : genresString.split(",")) {
               if(!genres.containsKey(genreString)) {
-                Genre genre = new Genre(genres.size(), genreString);
-                genres.put(genreString, genre);
-                mDB.exec("INSERT IGNORE INTO genres (" + Genre.getInsertCols() + ") VALUES (" + genre.getInsertValuesString() + ")");
-                if(mVerboseMode) System.out.println(" found and inserted new genre " + genre);
+                Genre newGenre = new Genre(genres.size(), genreString);
+                genres.put(genreString, newGenre);
+                mDB.insert(newGenre);
+                // mDB.exec("INSERT IGNORE INTO genres (" + Genre.getInsertCols() + ") VALUES (" + genre.getInsertValuesString() + ")");
+                if(mVerboseMode) System.out.println(" found and inserted new genre " + newGenre);
               }
               // batchSize++;
-              genreTitleRelations.add(new GenreTitleRelation(genres.get(genreString).getId(), attributes.get("tconst"))); // TODO genre.getId() wrong!!!!!!!!!
+              titleGenreRelations.add(new TitleGenreRelation(genres.get(genreString).getId(), attributes.get("tconst"))); // TODO genre.getId() wrong!!!!!!!!!
             }
           }
 
@@ -117,8 +139,8 @@ public class BatchWorker {
             batchSize = 0;
             if(sqlOperation == SQLOperation.INSERT) {
               mDB.batchInsertion("titles", parsedObjects.values());
-              if(!genreTitleRelations.isEmpty()) {
-                mDB.batchInsertion("genretitlerelations", genreTitleRelations);
+              if(!titleGenreRelations.isEmpty()) {
+                mDB.batchInsertion("titlegenrerelations", titleGenreRelations);
               }
               if(mVerboseMode) System.out.println(" insert-batch #" + ++batchNr); // + " of " + totalBatches);
             } else if(sqlOperation == SQLOperation.UPDATE) {
@@ -126,7 +148,7 @@ public class BatchWorker {
               if(mVerboseMode) System.out.println(" update-batch #" + ++batchNr + " of " + totalBatches);
             }
             totalObjectsParsed += parsedObjects.size();
-            genreTitleRelations.clear();
+            titleGenreRelations.clear();
             parsedObjects.clear();
           }
         }

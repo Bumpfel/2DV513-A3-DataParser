@@ -3,14 +3,14 @@ package model;
 import java.util.Map;
 
 public class Title implements IMDBData {
-  private String id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes;
+  private String id, titleTypeId, tempTitleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes;
   public String averageRating, numVotes;
 
   public String getId() { return id; }
 
   public Title(Map<String, String> map) {
     id = map.get("tconst");
-    titleType = map.get("titleType");
+    tempTitleType = map.get("titleType");
     primaryTitle = map.get("primaryTitle");
     originalTitle = map.get("originalTitle");
     isAdult = map.get("isAdult");
@@ -21,10 +21,10 @@ public class Title implements IMDBData {
     numVotes = map.get("numVotes");
  }
   public static String getInsertCols() {
-    return "id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, averageRating, numVotes";
+    return "id, titleTypeId, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, averageRating, numVotes";
   }
   public String[] getInsertValues() {
-    return new String[] { id, titleType, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, averageRating, numVotes };
+    return new String[] { id, titleTypeId, primaryTitle, originalTitle, isAdult, startYear, endYear, runtimeMinutes, averageRating, numVotes };
   }
   
   public static String getSQLUpdateString() {
@@ -39,5 +39,15 @@ public class Title implements IMDBData {
   public String toString() {
     // return primaryTitle;
     return id + " " + primaryTitle + " " + averageRating + " (" + numVotes + " votes)";
+  }
+
+  public void setTitleTypeId(String id) {
+    titleTypeId = id;
+  }
+
+  @Override
+  public String getInsertValuesString() {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

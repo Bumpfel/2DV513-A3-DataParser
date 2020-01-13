@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Jan 11, 2020 at 07:41 PM
+-- Generation Time: Jan 13, 2020 at 11:15 AM
 -- Server version: 10.4.10-MariaDB
 -- PHP Version: 7.3.12
 
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `imdb_data_test`
+-- Database: `imdb_data`
 --
 
 -- --------------------------------------------------------
@@ -66,12 +66,11 @@ CREATE TABLE IF NOT EXISTS `titles` (
   `startYear` mediumint(4) NOT NULL,
   `endYear` mediumint(4) NOT NULL,
   `runtimeMinutes` mediumint(3) NOT NULL,
-  `averageRating` decimal(2,0) NOT NULL,
-  `numVotes` int(11) NOT NULL,
+  `averageRating` decimal(3,1) DEFAULT NULL,
+  `numVotes` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `titleType` (`titleType`),
-  KEY `primaryTitle` (`primaryTitle`),
-  KEY `primaryTitle` (`originalTitle`)
+  KEY `primaryTitle` (`primaryTitle`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -82,8 +81,8 @@ CREATE TABLE IF NOT EXISTS `titles` (
 -- Constraints for table `genretitlerelations`
 --
 ALTER TABLE `genretitlerelations`
-  ADD CONSTRAINT `genretitlerelations_ibfk_1` FOREIGN KEY (`genreId`) REFERENCES `genres` (`id`),
-  ADD CONSTRAINT `genretitlerelations_ibfk_2` FOREIGN KEY (`titleId`) REFERENCES `titles` (`id`);
+  ADD CONSTRAINT `genretitlerelations_ibfk_1` FOREIGN KEY (`titleId`) REFERENCES `titles` (`id`),
+  ADD CONSTRAINT `genretitlerelations_ibfk_2` FOREIGN KEY (`genreId`) REFERENCES `genres` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

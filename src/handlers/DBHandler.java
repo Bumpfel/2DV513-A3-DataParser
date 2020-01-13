@@ -6,9 +6,11 @@ import java.util.Collection;
 import com.mysql.jdbc.MysqlDataTruncation;
 import com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException;
 
-import model.GenreTitleRelation;
+import model.Genre;
 import model.IMDBData;
 import model.Title;
+import model.TitleGenreRelation;
+import model.TitleType;
 
 public class DBHandler {
   private Connection mConn;
@@ -36,18 +38,17 @@ public class DBHandler {
     }
   }
 
+  public void insert(IMDBData object) {
+    String table = object.getClass().getSimpleName() + "s";
+    exec("INSERT IGNORE INTO " + table + " (" + getColsString(object) + ") VALUES (" + object.getInsertValuesString() + ")");
+  }
+
   public void batchInsertion(String table, Collection<IMDBData> data) {
     if(!data.iterator().hasNext()) {
       return;
     }
     
-    Class<?> dataClass = data.iterator().next().getClass();
-    String colsString = null;
-    if(dataClass == Title.class) {
-      colsString = Title.getInsertCols();
-    } else if(dataClass == GenreTitleRelation.class) {
-      colsString = GenreTitleRelation.getInsertCols();
-    }
+    String colsString = getColsString(data.iterator().next());
    
     // builds a comma-separated string "?, ?, ?, ..." with a parameter(?) for each column     
     StringBuilder parameterBuilder = new StringBuilder();
@@ -110,6 +111,21 @@ public class DBHandler {
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
+  
+  private String getColsString(IMDBData object) {
+    Class<?> dataClass = object.getClass();
+    String colsString = null;
+    if(dataClass == Title.class) {
+      colsString = Title.getInsertCols();
+    } else if(dataClass == TitleGenreRelation.class) {
+      colsString = TitleGenreRelation.getInsertCols();
+    } else if(dataClass == Genre.class) {
+      colsString = Genre.getInsertCols();
+    } else if(dataClass == TitleType.class) {
+      colsString = TitleType.getInsertCols();
+    }
+    return colsString;
   }
 
 }

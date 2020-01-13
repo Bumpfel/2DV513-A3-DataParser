@@ -7,6 +7,6 @@ public interface IMDBData {
   // public String getInsertCols();
   // public String getUpdateCols(); 
   public String[] getInsertValues();
-  public String[] getUpdateValues(); 
-
+  public String getInsertValuesString();
+  public String[] getUpdateValues();
 }
