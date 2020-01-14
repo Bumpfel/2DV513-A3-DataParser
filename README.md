@@ -19,8 +19,8 @@ OR
 
 ## Run the app
 1. Change settings in App.java if needed
-  * verboseMode gives you more detailed information during the parsing/db insertion
-  * batchSize - how much data the app should parse and insert at a time. Lower if needed for memory
-  * database - the name of your database
-  * dataFolder - the name of the folder where you keep your data sets
+   * verboseMode gives you more detailed information during the parsing/db insertion
+   * batchSize - how much data the app should parse and insert at a time. Lower if needed for memory
+   * database - the name of your database
+   * dataFolder - the name of the folder where you keep your data sets
 2. Run App.java
