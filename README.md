@@ -1,12 +1,11 @@
-# 2DV513-A3-DataParser
 For parsing and inserting imdb datasets into sql db
 
-# Instructions #
+# Running instructions
 
 ## Prepare the DB
 1. Create an empty database
 2. Import the structure file sql/db_structure.sql
-3. Adjust connection settings in handlers/DBHandler.java if needed (probably don't need with MAMP/WAMP installed)
+3. Adjust connection settings in handlers/DBHandler.java if needed
 
 ## Prepare the data sets
 * Use the test data. Change dataFolder to "testData" in App.java
