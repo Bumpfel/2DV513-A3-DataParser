@@ -14,8 +14,8 @@ OR
 
 * Use the real data
    1. Download "title.basics.tsv.gz", and "title.ratings.tsv.gz" from https://datasets.imdbws.com/
-   2. Unzip the data sets to a folder called "data"
-   3. Name the files "titles.tsv", "ratings.tsv"
+   2. Unzip the data sets to a folder called "data" (not to a sub folder as organized in the zipped file)
+   3. Name the files "titles.tsv", and "ratings.tsv"
 
 ## Run the app
 1. Change settings in App.java if needed
